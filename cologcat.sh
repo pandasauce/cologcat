@@ -145,59 +145,6 @@ function checkRequirements() {
 }
 
 
-
-# ----------------------------------------------------------------------------------------------------------------------------
-#  CONFIGURE LOGCAT LEVEL
-# ----------------------------------------------------------------------------------------------------------------------------
-function setLogCatLevel() {
-    printf "\nConfiguring Logcat filter level\n"
-    
-     if hash whiptail 2>/dev/null; then # check for whiptail
-            OPTION=$(whiptail --title "Set LogCat Level" --backtitle "$PROJECT_NAME" --ok-button "Choose" --cancel-button "Exit (ESC)" --menu "Configure LogCat logging level" 16 70 8 \
-        "[V]" "Verbose (most)" \
-        "[D]" "Debug" \
-        "[I]" "Info" \
-        "[W]" "Warning" \
-        "[E]" "Error" \
-        "[F]" "Fatal" \
-        "[S]" "Silent (none)"  3>&1 1>&2 2>&3)
-         
-        EXITSTATUS=$?
-        if [ $EXITSTATUS = 0 ]; then
-            case $OPTION in
-                "[V]")                                      # Verbose
-                    ADB_LOGCAT_COMMAND="adb logcat *:V"
-                    ;;
-                "[D]")                                      # Debug
-                    ADB_LOGCAT_COMMAND="adb logcat *:D"
-                    ;;
-                "[I]")                                      # Info
-                    ADB_LOGCAT_COMMAND="adb logcat *:I"
-                    ;;
-                "[W]")                                      # Warning
-                    ADB_LOGCAT_COMMAND="adb logcat *:W"
-                    ;;
-                "[E]")                                      # Error
-                    ADB_LOGCAT_COMMAND="adb logcat *:E"
-                    ;;
-                "[F]")                                      # Fatal
-                    ADB_LOGCAT_COMMAND="adb logcat *:F"
-                    ;;
-                "[S]")                                      # Silent
-                    ADB_LOGCAT_COMMAND="adb logcat *:S"
-                    ;;
-            esac
-        else # user aborted whiptail dialog
-            printf " ${FG_RED}[  FAIL  ]${NORMAL}\tAborted by user\n\n"
-            exit
-        fi
-    else # whiptail is missing
-        printf " ${FG_RED}[  FAIL  ]${NORMAL}\tCan't show dialog as whiptail is missing\n\n"
-    fi
-}
-
-
-
 # ----------------------------------------------------------------------------------------------------------------------------
 # DISPLAY HELP INFORMATIONS
 # ----------------------------------------------------------------------------------------------------------------------------
@@ -322,47 +269,14 @@ function parseLogcatOutputLine() {
     printf " $COLOR_FG_ONLY $MSG_TYPE_VERBOSE ${NORMAL} $DATE $TIME $COLOR_FB_AND_BG $MSG_TYPE ${NORMAL} $PROCESS_ID\t $THREAD_ID\t $COLOR_FG_ONLY $MSG_SOURCE ${NORMAL} $MSG\n"
 }
 
-
-
-# ----------------------------------------------------------------------------------------------------------------------------
-# START ADBLOGCAT
-# ----------------------------------------------------------------------------------------------------------------------------
-function startADBLogcat() {
-    printf "\nTrying to start logcat using: $ADB_LOGCAT_COMMAND\n"
-    
-    stdbuf -oL $ADB_LOGCAT_COMMAND |
-        while IFS= read -r line
-        do
-            parseLogcatOutputLine
-        done
-}
-
-
-
 # ----------------------------------------------------------------------------------------------------------------------------
 # MAIN
 # ----------------------------------------------------------------------------------------------------------------------------
 initTerm
 initColors
-checkRequirements
 
-# validate parameters
-printf "Checking parameters\n"
-for CURRENT_PARAMETER in "$@"
-do
-    case "$CURRENT_PARAMETER" in
-        "-h" | "--help")
-            printf " ${FG_GREEN}[   OK   ]${NORMAL}\tRequesting help\n"
-            displayHelp
-            ;;
-         "-f" | "--filter")
-            setLogCatLevel
-            ;;
-        *)
-            printf " ${FG_RED}[  FAIL  ]${NORMAL}\tUnsupported parameter '$CURRENT_PARAMETER'\n\n"
-            ;;
-    esac
-done
-printf " ${FG_GREEN}[   OK   ]${NORMAL}\tFinished checking parameters\n\n"
+filename="$1"
 
-startADBLogcat
+while read line; do
+    parseLogcatOutputLine
+done < $filename
