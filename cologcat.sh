@@ -266,7 +266,11 @@ function parseLogcatOutputLine() {
 
     # coLogCat output
     #printf " $cMSG_TYPE_LONG $DATE $TIME $cMSG_TYPE_SHORT $PROCESS_ID\t $THREAD_ID\t $cMSG_SOURCE $MSG\n"
-    printf " $COLOR_FG_ONLY $MSG_TYPE_VERBOSE ${NORMAL} $DATE $TIME $COLOR_FB_AND_BG $MSG_TYPE ${NORMAL} $PROCESS_ID\t $THREAD_ID\t $COLOR_FG_ONLY $MSG_SOURCE ${NORMAL} $MSG\n"
+    printf "%s" "$COLOR_FG_ONLY $MSG_TYPE_VERBOSE ${NORMAL} $DATE $TIME $COLOR_FB_AND_BG $MSG_TYPE ${NORMAL} $PROCESS_ID"
+    printf "\t"
+    printf "%s" "$THREAD_ID"
+    printf "\t"
+    printf "%s\n" "$COLOR_FG_ONLY $MSG_SOURCE ${NORMAL} $MSG"
 }
 
 # ----------------------------------------------------------------------------------------------------------------------------
