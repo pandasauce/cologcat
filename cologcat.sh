@@ -279,8 +279,7 @@ function parseLogcatOutputLine() {
 initTerm
 initColors
 
-filename="$1"
 
 while read line; do
     parseLogcatOutputLine
-done < $filename
+done < "${1:-/dev/stdin}"
